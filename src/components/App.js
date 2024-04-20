@@ -1,46 +1,43 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-import './../styles/App.css';
-
-const DataFetcher = () => {
+const App = () => {
   const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://dummyjson.com/products');
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const jsonData = await response.json();
-        setData(jsonData);
-        setIsLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+    setLoading(true);
+    fetch("https://dummyjson.com/products")
+      .then((response) => response.json())
+      .then((json) => {
+        setData(json);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error);
+        setLoading(false);
+      });
   }, []);
-}
 
-const App = () => {
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>An error occurred: {error.message}</div>;
+  }
+
+  if (!data) {
+    return <div>No data found</div>;
+  }
+
   return (
     <div>
-        {/* Do not remove the main div */}
-        {isLoading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p>Error: {error}</p>
-      ) : (
-        <pre>{JSON.stringify(data, null, 2)}</pre>
-      )}
+      <h1>Data Fetched from API</h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
 };
 
-export default App
+export default App;
